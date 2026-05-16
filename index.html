@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f766e" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Aplicações" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Planejador Local de Aplicações</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+    <link rel="icon" href="./icons/icon-192.png" />
+    <link rel="stylesheet" href="./styles.css?v=15" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Roda 100% localmente</p>
+        <h1>Planejador de aplicações</h1>
+      </div>
+      <div class="top-actions">
+        <button id="saveBtn" type="button" title="Salvar no navegador">Salvar</button>
+        <button id="clearBtn" type="button" class="ghost" title="Limpar dados salvos">Limpar</button>
+      </div>
+    </header>
+
+    <div class="theme-bar" aria-label="Selecionar tema">
+      <span>Tema</span>
+      <div class="theme-toggle" role="group" aria-label="Tema do aplicativo">
+        <button id="lightThemeBtn" type="button" class="theme-option active" data-theme="light">Branco</button>
+        <button id="darkThemeBtn" type="button" class="theme-option" data-theme="dark">Preto</button>
+      </div>
+    </div>
+
+    <main class="layout">
+      <section class="panel input-panel" aria-labelledby="config-title">
+        <div class="section-head">
+          <div>
+            <h2 id="config-title">Configuração</h2>
+            <p>Informe apenas o protocolo que você já decidiu com acompanhamento profissional.</p>
+          </div>
+        </div>
+
+        <div class="notice" role="note">
+          Este app não recomenda doses, substâncias ou locais de aplicação. Ele só organiza datas e volumes informados por você.
+        </div>
+
+        <form id="plannerForm">
+          <div class="grid two">
+            <label>
+              Data inicial
+              <input id="startDate" name="startDate" type="date" required />
+            </label>
+            <label>
+              Duração do planejamento
+              <span class="inline-field">
+                <input id="durationDays" name="durationDays" type="number" min="1" max="730" step="1" value="28" required />
+                <span>dias</span>
+              </span>
+            </label>
+            <label>
+              Intervalo entre aplicações
+              <span class="inline-field">
+                <input id="intervalDays" name="intervalDays" type="number" min="1" max="30" step="1" value="2" required />
+                <span>dias</span>
+              </span>
+            </label>
+            <label>
+              Horário no calendário
+              <input id="eventTime" name="eventTime" type="time" value="08:00" required />
+            </label>
+          </div>
+
+          <div class="subhead">
+            <h3>Substâncias</h3>
+            <button id="addCompoundBtn" type="button" class="small">Adicionar</button>
+          </div>
+          <div id="compounds" class="compound-list"></div>
+
+          <div class="subhead">
+            <h3>Rodízio de locais</h3>
+          </div>
+          <label>
+            Locais, um por linha
+            <textarea id="sites" name="sites" rows="5" spellcheck="false"></textarea>
+          </label>
+
+          <label>
+            Observações que entram no planejamento
+            <textarea id="notes" name="notes" rows="4" placeholder="Ex.: usar agulha/seringa estéril, conferir material, registrar qualquer reação."></textarea>
+          </label>
+
+          <button type="submit" class="primary">Gerar planejamento</button>
+        </form>
+      </section>
+
+      <section class="panel output-panel" aria-labelledby="result-title">
+        <div class="section-head output-head">
+          <div>
+            <h2 id="result-title">Planejamento</h2>
+            <p id="summaryText">Preencha os dados e gere a tabela.</p>
+          </div>
+          <div class="export-actions">
+            <button id="copyBtn" type="button" title="Copiar para Notas">Copiar</button>
+            <button id="icsBtn" type="button" title="Baixar arquivo para Google Agenda">Agenda</button>
+            <button id="tasksBtn" type="button" title="Baixar lista para Google Tarefas ou Notas">Tarefas</button>
+            <button id="pdfBtn" type="button" title="Imprimir ou salvar em PDF">PDF</button>
+          </div>
+        </div>
+
+        <div class="metrics" id="metrics"></div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Dia</th>
+                <th>Local</th>
+                <th>Aplicação</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody id="scheduleBody">
+              <tr>
+                <td colspan="5" class="empty">Nenhum planejamento gerado ainda.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <textarea id="copyOutput" readonly aria-label="Texto para copiar"></textarea>
+      </section>
+    </main>
+
+    <template id="compoundTemplate">
+      <div class="compound-row">
+        <label>
+          Nome
+          <input class="compound-name" type="text" placeholder="Masteron propionato" required />
+        </label>
+        <label>
+          Dose semanal
+          <span class="inline-field">
+            <input class="compound-weekly" type="number" min="0" step="0.01" placeholder="200" required />
+            <span>mg</span>
+          </span>
+        </label>
+        <label>
+          Concentração
+          <span class="inline-field">
+            <input class="compound-concentration" type="number" min="0.01" step="0.01" placeholder="100" required />
+            <span>mg/ml</span>
+          </span>
+        </label>
+        <button type="button" class="icon remove-compound" title="Remover substância">×</button>
+      </div>
+    </template>
+
+    <script src="./app.js?v=15"></script>
+  </body>
+</html>
